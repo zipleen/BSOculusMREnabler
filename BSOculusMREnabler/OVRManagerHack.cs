@@ -11,6 +11,9 @@ namespace BSOculusMREnabler
 {
     public class OVRManagerHack : MonoBehaviour
     {
+        public static Camera MainCamera;
+        private Camera _cam;
+
         private bool suppressDisableMixedRealityBecauseOfNoMainCameraWarning;
         public static bool enableMixedReality;
         private static bool prevEnableMixedReality = false;
@@ -70,6 +73,31 @@ namespace BSOculusMREnabler
         {
             doTheOvrHack();
             //OVRPlugin.occlusionMesh = true;
+
+            var gameObj = Instantiate(MainCamera.gameObject);
+            gameObj.SetActive(false);
+            gameObj.name = "Camera Plus";
+            gameObj.tag = "Untagged";
+            while (gameObj.transform.childCount > 0) DestroyImmediate(gameObj.transform.GetChild(0).gameObject);
+            DestroyImmediate(gameObj.GetComponent("CameraRenderCallbacksManager"));
+            DestroyImmediate(gameObj.GetComponent("AudioListener"));
+            DestroyImmediate(gameObj.GetComponent("MeshCollider"));
+            
+            _cam = gameObj.GetComponent<Camera>();
+            _cam.stereoTargetEye = StereoTargetEyeMask.None;
+            _cam.targetTexture = null;
+            _cam.depth += 100;
+
+            gameObj.SetActive(true);
+
+            var camera = MainCamera.transform;
+            transform.position = camera.position;
+            transform.rotation = camera.rotation;
+
+            gameObj.transform.parent = transform;
+            gameObj.transform.localPosition = Vector3.zero;
+            gameObj.transform.localRotation = Quaternion.identity;
+            gameObj.transform.localScale = Vector3.one;
         }
 
         public void LateUpdate()
@@ -88,7 +116,7 @@ namespace BSOculusMREnabler
             {
                 suppressDisableMixedRealityBecauseOfNoMainCameraWarning = false;
 
-                Camera mainCamera = FindMainCamera();
+                Camera mainCamera = _cam;
                 if ((Camera)mainCamera == (UnityEngine.Object)null)
                 {
                     Console.Write("mainCamera null");
