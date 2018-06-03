@@ -105,12 +105,34 @@ namespace BSOculusMREnabler
                     getUpdateMethod().Invoke(null, parameters);
                     //OVRMixedReality.Update(base.gameObject, MainCamera, OVRManager.CompositionMethod.Sandwich, false, OVRManager.CameraDevice.WebCamera0, OVRManager.DepthQuality.High);
 
+                    // it seems we need to add post processing effects to the final image, as somehow they don't get applied automatically!
+                    // for that PostProcess will apply them, but we need to add the HackPostProcess gameobject into the just created camera (which we didn't create)
+                    // so we need to get the camera out of the OVRMixedReality package and add the post process hack to them
+                    // - is there a better way to do this ?
                     if (!addedPostProcess)
                     {
-                        OVRDirectComposition ovrComposition = (OVRDirectComposition)getOvrMixedRealityType().GetField("currentComposition", BindingFlags.Static | BindingFlags.Public).GetValue(null);
-                        directCamera = ovrComposition.directCompositionCamera;
-                        directCamera.allowHDR = false;
-                        directCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+                        OVRComposition ovrComposition = (OVRComposition)getOvrMixedRealityType().GetField("currentComposition", BindingFlags.Static | BindingFlags.Public).GetValue(null);
+                        if (ovrComposition != null)
+                        {
+                            if (ovrComposition is OVRDirectComposition)
+                            {
+                                ((OVRDirectComposition)ovrComposition).directCompositionCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+                            }
+                            else if (ovrComposition is OVRExternalComposition)
+                            {
+                                Camera backgroundCamera = (Camera) ovrComposition.GetType().GetField("backgroundCamera", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(ovrComposition);
+                                backgroundCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+
+                                Camera foregroundCamera = (Camera)ovrComposition.GetType().GetField("foregroundCamera", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(ovrComposition);
+                                foregroundCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+                            }
+                            else if (ovrComposition is OVRSandwichComposition)
+                            {
+                                ((OVRSandwichComposition)ovrComposition).bgCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+                                ((OVRSandwichComposition)ovrComposition).fgCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+                            }
+                        }
+
 
                         addedPostProcess = true;
                     }
@@ -130,9 +152,7 @@ namespace BSOculusMREnabler
                 suppressDisableMixedRealityBecauseOfNoMainCameraWarning = true;
             }
         }
-
         
-
         public void OnDisable()
         {
             Console.WriteLine("OnDisable -> Cleanup!");
