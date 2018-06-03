@@ -4,9 +4,9 @@ Beat Saber doesn't work with the native Oculus MR support - the OVRManager is no
 
 Liv is the official way to have MR, but unfortunately it doesn't work with the Oculus Store version - only the Steam version with OpenVR. This means everyone who has bought Beat Saber from the Oculus store will not have MR support at all.
 
-This is an attempt to add that support back into Beat Saber.
+This is an attempt to add that support back into Beat Saber!
 
-Unfortunately this is not fully working - there's something wrong in the final render and there seems to be a missing shader of some sort - so all the "special effects" are gone from the render!
+Quick instructions: you'll require the usual mrc.config and launch Beat Saber with `-load_mrc_config`
 
 # How to use:
 
@@ -15,6 +15,8 @@ Unfortunately this is not fully working - there's something wrong in the final r
 - Run it and calibrate your camera. In the end click the button that says "Save Camera to OVRServer"
 - If you're lost, follow the Oculus guide: https://support.oculus.com/guides/rift/latest/concepts/mr-camera/
 - You'll need to do this on every reboot.
+
+## Choose how to run Beat Saber:
 
 ### 1. command line parameter
 - Run BeatSaber.exe with "-directcomposition" or "-externalcomposition"
@@ -58,5 +60,8 @@ Here's an example mrc.config file that you can use
 ```
 You can find some specification for each of these values in https://developer.oculus.com/documentation/unity/latest/concepts/unity-mrc/
 
+## Notes
+
+Obviously this only makes sense for users who bought Beat Saber from Oculus Store!
 
 Based on CameraPlus.
