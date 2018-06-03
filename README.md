@@ -1,4 +1,4 @@
-# BSOculusMREnabler
+# BeatSaber Oculus MR Enabler
 
 Beat Saber doesn't work with the native Oculus MR support - the OVRManager is not used by the game.
 
@@ -6,23 +6,30 @@ Liv is the official way to have MR, but unfortunately it doesn't work with the O
 
 This is an attempt to add that support back into Beat Saber!
 
+If you're not using MR, please move the .dll away from your folder. 
+CameraPlus and CustomAvatar might create some sort of unexpected results, it's probably better to move them somewhere else.
+
 Quick instructions: you'll require the usual mrc.config and launch Beat Saber with `-load_mrc_config`
+
+Tested on Beat Saber 0.10.2p1
 
 # How to use:
 
 ## Oculus Camera Tool
 - First you need to setup your camera with Oculus camera tool, you should find it somewhere around "C:\Program Files\Oculus\Support\oculus-diagnostics\CameraCalibrationTool\CameraTool.exe"
-- Run it and calibrate your camera. In the end click the button that says "Save Camera to OVRServer"
+- Run it and calibrate your camera. In the end click the button that says `Save Camera to OVRServer`
 - If you're lost, follow the Oculus guide: https://support.oculus.com/guides/rift/latest/concepts/mr-camera/
 - You'll need to do this on every reboot.
 
 ## Choose how to run Beat Saber:
 
 ### 1. command line parameter
-- Run BeatSaber.exe with "-directcomposition" or "-externalcomposition"
+- Run BeatSaber.exe with `-directcomposition` or `-externalcomposition`
 
 ### 2. Use a mrc.config file 
-- You can also use a mrc.config file which can override some of the settings set by the OVRServer. Save this info inside Beat Saber_Data folder. For default Oculus it should be something inside "D:\Oculus Apps\Software\hyperbolic-magnetism-beat-saber\Beat Saber_Data"
+- Run BeatSaber.exe with `-load_mrc_config`
+- You can also use a mrc.config file which can override some of the settings set by the OVRServer. Save this file inside "Beat Saber_Data" folder, which should be somewhere around ":\Oculus Apps\Software\hyperbolic-magnetism-beat-saber\Beat Saber_Data"
+
 Here's an example mrc.config file that you can use
 ```
 {
@@ -31,7 +38,7 @@ Here's an example mrc.config file that you can use
         "serializedVersion": "2",
         "m_Bits": 0
     },
-    "compositionMethod": 2,
+    "compositionMethod": 0,
     "capturingCameraDevice": 0,
     "flipCameraFrameHorizontally": false,
     "flipCameraFrameVertically": false,
