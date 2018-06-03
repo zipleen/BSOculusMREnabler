@@ -14,13 +14,16 @@ namespace BSOculusMREnabler
     {
         private bool addedPostProcess = false;
 
+        public static Camera MainCamera;
+
         private bool suppressDisableMixedRealityBecauseOfNoMainCameraWarning;
         public static bool enableMixedReality;
         private static bool prevEnableMixedReality = false;
-        private bool multipleMainCameraWarningPresented = false;
-        private static OVRManager oVRManager;
-        private Camera directCamera;
 
+        // we only want 1 of these
+        private static OVRManager oVRManager;
+        
+        // hack the methods with reflection
         private Type ovrMixedRealityType;
         private MethodInfo updateMethod;
         private MethodInfo cleanupMethod;
@@ -86,7 +89,7 @@ namespace BSOculusMREnabler
             {
                 suppressDisableMixedRealityBecauseOfNoMainCameraWarning = false;
 
-                Camera mainCamera = FindMainCamera();
+                Camera mainCamera = MainCamera;
                 if ((Camera)mainCamera == (UnityEngine.Object)null)
                 {
                     Console.Write("mainCamera null");
@@ -199,42 +202,6 @@ namespace BSOculusMREnabler
                 Debug.LogWarning("OVR: CompositionMethod : " + oVRManager.compositionMethod);
             }
         }
-
-        private Camera FindMainCamera()
-        {
-            return Object.FindObjectsOfType<MainCamera>().FirstOrDefault(x => x.CompareTag("MainCamera")).camera;
-            /*
-            GameObject[] array = GameObject.FindGameObjectsWithTag("MainCamera");
-            List<Camera> list = new List<Camera>(4);
-            GameObject[] array2 = array;
-            foreach (GameObject gameObject in array2)
-            {
-                Camera component = gameObject.GetComponent<Camera>();
-                if ((Object)component != (Object)null && component.enabled)
-                {
-                    OVRCameraRig componentInParent = ((Component)component).GetComponentInParent<OVRCameraRig>();
-                    if ((Object)componentInParent != (Object)null && (Object)componentInParent.trackingSpace != (Object)null)
-                    {
-                        list.Add(component);
-                    }
-                }
-            }
-            if (list.Count == 0)
-            {
-                return Camera.main;
-            }
-            if (list.Count == 1)
-            {
-                return list[0];
-            }
-            if (!multipleMainCameraWarningPresented)
-            {
-                Debug.LogWarning("Multiple MainCamera found. Assume the real MainCamera is the camera with the least depth");
-                multipleMainCameraWarningPresented = true;
-            }
-            list.Sort((Camera c0, Camera c1) => (!(c0.depth < c1.depth)) ? ((c0.depth > c1.depth) ? 1 : 0) : (-1));
-            return list[0];
-            */
-        }
+        
     }
 }
