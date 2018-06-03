@@ -16,16 +16,27 @@ namespace BSOculusMREnabler
         private static bool prevEnableMixedReality = false;
         private bool multipleMainCameraWarningPresented = false;
         private static OVRManager oVRManager;
+        private Camera directCamera;
 
+        private Type ovrMixedRealityType;
         private MethodInfo updateMethod;
         private MethodInfo cleanupMethod;
+
+        private Type getOvrMixedRealityType()
+        {
+            if (ovrMixedRealityType == null)
+            {
+                Assembly ass = Assembly.Load("Assembly-CSharp-firstpass");
+                ovrMixedRealityType = ass.GetType("OVRMixedReality");
+            }
+            return ovrMixedRealityType;
+        }
 
         public MethodInfo getUpdateMethod()
         {
             if (updateMethod == null)
             {
-                Assembly ass = Assembly.Load("Assembly-CSharp-firstpass");
-                Type asmType = ass.GetType("OVRMixedReality");
+                Type asmType = getOvrMixedRealityType();
 
                 if (asmType == null)
                 {
@@ -42,8 +53,7 @@ namespace BSOculusMREnabler
         {
             if (cleanupMethod == null)
             {
-                Assembly ass = Assembly.Load("Assembly-CSharp-firstpass");
-                Type asmType = ass.GetType("OVRMixedReality");
+                Type asmType = getOvrMixedRealityType();
 
                 if (asmType == null)
                 {
@@ -59,9 +69,15 @@ namespace BSOculusMREnabler
         public void Awake()
         {
             doTheOvrHack();
+            //OVRPlugin.occlusionMesh = true;
         }
 
         public void LateUpdate()
+        {
+            
+        }
+
+        public void Update()
         {
             if (!enableMixedReality && !prevEnableMixedReality)
             {
@@ -87,12 +103,15 @@ namespace BSOculusMREnabler
                         return;
                     }
 
-                    
-
                     System.Object[] parameters = { base.gameObject, mainCamera, oVRManager.compositionMethod, oVRManager.useDynamicLighting, oVRManager.capturingCameraDevice, oVRManager.depthQuality };
                     getUpdateMethod().Invoke(null, parameters);
                     //OVRMixedReality.Update(base.gameObject, MainCamera, OVRManager.CompositionMethod.Sandwich, false, OVRManager.CameraDevice.WebCamera0, OVRManager.DepthQuality.High);
 
+                    /*
+                    OVRDirectComposition ovrComposition = (OVRDirectComposition)getOvrMixedRealityType().GetField("currentComposition", BindingFlags.Static | BindingFlags.Public).GetValue(null);
+                    directCamera = ovrComposition.directCompositionCamera;
+                    directCamera.allowHDR = false;
+                    */
                 }
                 if (prevEnableMixedReality && !enableMixedReality)
                 {
@@ -173,7 +192,6 @@ namespace BSOculusMREnabler
             }
             if (list.Count == 0)
             {
-                //Console.WriteLine("no camera!!");
                 return Camera.main;
             }
             if (list.Count == 1)
