@@ -12,6 +12,8 @@ namespace BSOculusMREnabler
 {
     public class OVRManagerHack : MonoBehaviour
     {
+        private bool addedPostProcess = false;
+
         private bool suppressDisableMixedRealityBecauseOfNoMainCameraWarning;
         public static bool enableMixedReality;
         private static bool prevEnableMixedReality = false;
@@ -69,7 +71,6 @@ namespace BSOculusMREnabler
 
         public void Awake()
         {
-            this.name = "OVRManagerHack";
             doTheOvrHack();
             //OVRPlugin.occlusionMesh = true;
         }
@@ -104,16 +105,21 @@ namespace BSOculusMREnabler
                     getUpdateMethod().Invoke(null, parameters);
                     //OVRMixedReality.Update(base.gameObject, MainCamera, OVRManager.CompositionMethod.Sandwich, false, OVRManager.CameraDevice.WebCamera0, OVRManager.DepthQuality.High);
 
-                    /*
-                    OVRDirectComposition ovrComposition = (OVRDirectComposition)getOvrMixedRealityType().GetField("currentComposition", BindingFlags.Static | BindingFlags.Public).GetValue(null);
-                    directCamera = ovrComposition.directCompositionCamera;
-                    directCamera.allowHDR = false;
-                    */
+                    if (!addedPostProcess)
+                    {
+                        OVRDirectComposition ovrComposition = (OVRDirectComposition)getOvrMixedRealityType().GetField("currentComposition", BindingFlags.Static | BindingFlags.Public).GetValue(null);
+                        directCamera = ovrComposition.directCompositionCamera;
+                        directCamera.allowHDR = false;
+                        directCamera.gameObject.AddComponent<OVRManagerHackPostProcess>();
+
+                        addedPostProcess = true;
+                    }
                 }
                 if (prevEnableMixedReality && !enableMixedReality)
                 {
                     Console.WriteLine("Cleanup!");
                     getCleanupMethod().Invoke(null, null);
+                    addedPostProcess = false;
                     //OVRMixedReality.Cleanup();
                 }
                 prevEnableMixedReality = enableMixedReality;
@@ -125,16 +131,13 @@ namespace BSOculusMREnabler
             }
         }
 
-        public void OnRenderImage(RenderTexture src, RenderTexture dest)
-        {
-            Console.Write(".");
-            Object.FindObjectsOfType<MainCamera>().FirstOrDefault(x => x.CompareTag("MainCamera")).mainEffect.OnRenderImage(src, dest);
-        }
+        
 
         public void OnDisable()
         {
             Console.WriteLine("OnDisable -> Cleanup!");
             getCleanupMethod().Invoke(null, null);
+            addedPostProcess = false;
         }
 
         private void doTheOvrHack()

@@ -57,12 +57,13 @@ namespace BSOculusMREnabler
             OVRManagerHack.enableMixedReality = false;
             if (_ovrManagerHack != null) Object.Destroy(_ovrManagerHack.gameObject);
 
-            //var mainCamera = Object.FindObjectsOfType<Camera>().FirstOrDefault(x => x.CompareTag("MainCamera"));
-            //if (mainCamera == null) return;
+            var mainCamera = Object.FindObjectsOfType<Camera>().FirstOrDefault(x => x.CompareTag("MainCamera"));
+            if (mainCamera == null) return;
 
-            var gameObj = new GameObject("OVRManagerHack");
+            var gameObj = new GameObject("OVRManagerHackTemp");
             //OVRManagerHack.MainCamera = mainCamera;
             _ovrManagerHack = gameObj.AddComponent<OVRManagerHack>();
+
             OVRManagerHack.enableMixedReality = true;
             Console.WriteLine("enableMixed reality to true");
         }
