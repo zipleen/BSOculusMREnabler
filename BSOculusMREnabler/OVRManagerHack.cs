@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -68,13 +69,9 @@ namespace BSOculusMREnabler
 
         public void Awake()
         {
+            this.name = "OVRManagerHack";
             doTheOvrHack();
             //OVRPlugin.occlusionMesh = true;
-        }
-
-        public void LateUpdate()
-        {
-            
         }
 
         public void Update()
@@ -128,6 +125,12 @@ namespace BSOculusMREnabler
             }
         }
 
+        public void OnRenderImage(RenderTexture src, RenderTexture dest)
+        {
+            Console.Write(".");
+            Object.FindObjectsOfType<MainCamera>().FirstOrDefault(x => x.CompareTag("MainCamera")).mainEffect.OnRenderImage(src, dest);
+        }
+
         public void OnDisable()
         {
             Console.WriteLine("OnDisable -> Cleanup!");
@@ -147,6 +150,7 @@ namespace BSOculusMREnabler
                 bool flag2 = (bool) typeof(OVRManager).GetMethod("CreateMixedRealityCaptureConfigurationFileFromCmd", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null);
                 if (flag || flag2)
                 {
+                    Console.WriteLine("Loading mrc.config...");
                     OVRMixedRealityCaptureSettings oVRMixedRealityCaptureSettings = ScriptableObject.CreateInstance<OVRMixedRealityCaptureSettings>();
                     oVRMixedRealityCaptureSettings.ReadFrom(oVRManager);
                     if (flag)
@@ -175,6 +179,8 @@ namespace BSOculusMREnabler
 
         private Camera FindMainCamera()
         {
+            return Object.FindObjectsOfType<MainCamera>().FirstOrDefault(x => x.CompareTag("MainCamera")).camera;
+            /*
             GameObject[] array = GameObject.FindGameObjectsWithTag("MainCamera");
             List<Camera> list = new List<Camera>(4);
             GameObject[] array2 = array;
@@ -205,6 +211,7 @@ namespace BSOculusMREnabler
             }
             list.Sort((Camera c0, Camera c1) => (!(c0.depth < c1.depth)) ? ((c0.depth > c1.depth) ? 1 : 0) : (-1));
             return list[0];
+            */
         }
     }
 }
